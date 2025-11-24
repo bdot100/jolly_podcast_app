@@ -53,4 +53,26 @@ class ApiService {
       throw Exception('Failed to load podcasts: ${response.body}');
     }
   }
+
+  Future<List<Podcast>> fetchHandPickedPodcasts({int amount = 1}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse('${AppConstants.handPickedPodcastsEndpoint}?amount=$amount'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> podcastList = data['data'] ?? data;
+      return podcastList.map((json) => Podcast.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load hand-picked podcasts: ${response.body}');
+    }
+  }
 }
+
