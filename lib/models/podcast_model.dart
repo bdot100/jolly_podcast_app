@@ -4,6 +4,7 @@ class Podcast {
   final String? description;
   final String? thumbnail;
   final String? audioUrl;
+  final String? author;
 
   Podcast({
     this.id,
@@ -11,6 +12,7 @@ class Podcast {
     this.description,
     this.thumbnail,
     this.audioUrl,
+    this.author,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {
@@ -18,8 +20,9 @@ class Podcast {
       id: json['id']?.toString() ?? json['_id']?.toString(),
       title: json['title'] ?? json['name'],
       description: json['description'],
-      thumbnail: json['thumbnail'] ?? json['image'] ?? json['imageUrl'],
-      audioUrl: json['audio'] ?? json['file'] ?? json['url'],
+      thumbnail: json['picture_url'] ?? json['thumbnail'] ?? json['image'] ?? json['imageUrl'],
+      audioUrl: json['content_url'] ?? json['audio'] ?? json['file'] ?? json['url'],
+      author: json['podcast']?['author'] ?? json['author'],
     );
   }
 }

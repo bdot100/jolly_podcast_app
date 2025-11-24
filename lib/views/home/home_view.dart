@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../utils/constants.dart';
 import 'podcast_list_view.dart';
 import '../favorites/favorites_view.dart';
 import '../profile/profile_view.dart';
+import '../widgets/mini_player.dart';
+import '../../controllers/player_controller.dart';
 
-class HomeView extends StatelessWidget {
-  final RxInt _selectedIndex = 0.obs;
+class HomeView extends StatefulWidget {
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  int _currentIndex = 0;
+  final PlayerController _playerController = Get.put(PlayerController());
 
   final List<Widget> _views = [
     PodcastListView(),
@@ -18,50 +25,76 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppConstants.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Obx(() {
-          switch (_selectedIndex.value) {
-            case 0:
-              return Text('Discover', style: GoogleFonts.outfit(fontWeight: FontWeight.bold));
-            case 1:
-              return Text('Favorites', style: GoogleFonts.outfit(fontWeight: FontWeight.bold));
-            case 2:
-              return Text('Profile', style: GoogleFonts.outfit(fontWeight: FontWeight.bold));
-            default:
-              return Text('Jolly Podcast', style: GoogleFonts.outfit(fontWeight: FontWeight.bold));
-          }
-        }),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        centerTitle: false,
-        automaticallyImplyLeading: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Good morning',
+              style: GoogleFonts.outfit(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              'Listen to your favorite podcast',
+              style: GoogleFonts.outfit(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          CircleAvatar(
+            backgroundImage: NetworkImage('https://placehold.co/150.png'),
+          ),
+          SizedBox(width: 16),
+          Icon(Icons.notifications, color: Theme.of(context).iconTheme.color),
+          SizedBox(width: 16),
+        ],
       ),
-      body: Obx(() => _views[_selectedIndex.value]),
-      bottomNavigationBar: Obx(() => BottomNavigationBar(
-        currentIndex: _selectedIndex.value,
+      body: Column(
+        children: [
+          Expanded(child: _views[_currentIndex]),
+          Obx(() {
+            if (_playerController.currentPodcast.value != null) {
+              return MiniPlayer();
+            } else {
+              return SizedBox.shrink();
+            }
+          }),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
         onTap: (index) {
-          _selectedIndex.value = index;
+          setState(() {
+            _currentIndex = index;
+          });
         },
-        selectedItemColor: AppConstants.primaryColor,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+        unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.mic),
-            label: 'Podcasts',
+            icon: Icon(Icons.podcasts),
+            label: 'Discover',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
+            icon: Icon(Icons.grid_view_rounded),
+            label: 'Categories',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.library_music),
+            label: 'Your Library',
           ),
         ],
-      )),
+      ),
     );
   }
 }

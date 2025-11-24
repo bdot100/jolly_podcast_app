@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_storage/get_storage.dart';
 import '../services/api_service.dart';
 import '../views/home/home_view.dart';
 import '../views/auth/login_view.dart';
@@ -27,8 +27,8 @@ class AuthController extends GetxController {
     }
   }
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    final box = GetStorage();
+    await box.erase();
     Get.offAll(() => LoginView());
   }
 }

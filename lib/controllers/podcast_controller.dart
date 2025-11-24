@@ -7,16 +7,19 @@ class PodcastController extends GetxController {
   var isLoading = true.obs;
   var podcastList = <Podcast>[].obs;
 
+  var editorPick = Rxn<Podcast>();
+
   @override
   void onInit() {
     fetchPodcasts();
+    fetchEditorPick();
     super.onInit();
   }
 
   void fetchPodcasts() async {
     try {
       isLoading(true);
-      var podcasts = await _apiService.fetchPodcasts();
+      var podcasts = await _apiService.fetchTrendingPodcasts();
       if (podcasts.isNotEmpty) {
         podcastList.assignAll(podcasts);
       }
@@ -24,6 +27,17 @@ class PodcastController extends GetxController {
       Get.snackbar('Error', 'Failed to load podcasts: $e');
     } finally {
       isLoading(false);
+    }
+  }
+
+  void fetchEditorPick() async {
+    try {
+      var podcast = await _apiService.fetchEditorPick();
+      if (podcast != null) {
+        editorPick.value = podcast;
+      }
+    } catch (e) {
+      print('Error fetching editor pick: $e');
     }
   }
 }
